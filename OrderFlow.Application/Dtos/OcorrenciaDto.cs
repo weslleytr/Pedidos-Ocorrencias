@@ -8,9 +8,10 @@ using OrderFlow.Domain.Enum;
 namespace OrderFlow.Application.Dtos
 {
     public record OcorrenciaDto(
-    int IdOcorrencia,
-    ETipoOcorrencia TipoOcorrencia,
-    bool IndFinalizadora,
-    DateTime HoraOcorrencia
-);
+        int IdOcorrencia,
+        ETipoOcorrencia TipoOcorrencia,
+        bool IndFinalizadora,
+        DateTime HoraOcorrencia,
+        int PedidoId
+    );
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OrderFlow.Infra.Data;
@@ -11,9 +12,11 @@ using OrderFlow.Infra.Data;
 namespace OrderFlow.Infra.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250930165956_AddPedidoIdToOcorrencias")]
+    partial class AddPedidoIdToOcorrencias
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,12 +42,17 @@ namespace OrderFlow.Infra.Migrations
                     b.Property<int>("PedidoId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("PedidoIdPedido")
+                        .HasColumnType("integer");
+
                     b.Property<int>("TipoOcorrencia")
                         .HasColumnType("integer");
 
                     b.HasKey("IdOcorrencia");
 
                     b.HasIndex("PedidoId");
+
+                    b.HasIndex("PedidoIdPedido");
 
                     b.ToTable("Ocorrencias");
                 });
@@ -73,11 +81,15 @@ namespace OrderFlow.Infra.Migrations
 
             modelBuilder.Entity("OrderFlow.Domain.Entities.Ocorrencia", b =>
                 {
-                    b.HasOne("OrderFlow.Domain.Entities.Pedido", "Pedido")
+                    b.HasOne("OrderFlow.Domain.Entities.Pedido", null)
                         .WithMany("Ocorrencias")
                         .HasForeignKey("PedidoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("OrderFlow.Domain.Entities.Pedido", "Pedido")
+                        .WithMany()
+                        .HasForeignKey("PedidoIdPedido");
 
                     b.Navigation("Pedido");
                 });

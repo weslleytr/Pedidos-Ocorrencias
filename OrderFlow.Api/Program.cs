@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OrderFlow.Application.Handler.Ocorrencia;
 using OrderFlow.Application.Handler.Pedido;
 using OrderFlow.Domain.Interfaces;
 using OrderFlow.Infra.Data;
@@ -16,6 +17,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<CreatePedidoHandler>();
+builder.Services.AddScoped<IOcorrenciaRepository, OcorrenciaRepository>();
+builder.Services.AddScoped<CreateOcorrenciaHandler>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

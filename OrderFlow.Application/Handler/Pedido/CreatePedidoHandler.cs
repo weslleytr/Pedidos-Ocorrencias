@@ -33,7 +33,8 @@ namespace OrderFlow.Application.Handler.Pedido
                     o.IdOcorrencia,
                     o.TipoOcorrencia,
                     o.IndFinalizadora,
-                    o.HoraOcorrencia
+                    o.HoraOcorrencia,
+                    o.PedidoId
                 )).ToList()
             );
 

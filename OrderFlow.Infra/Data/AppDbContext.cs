@@ -14,25 +14,24 @@ namespace OrderFlow.Infra.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuração Ocorrencia
-            modelBuilder.Entity<Ocorrencia>(entity =>
-            {
-                entity.HasKey(o => o.IdOcorrencia);
-                entity.Property(o => o.TipoOcorrencia).HasConversion<int>();
-
-                // Define FK para Pedido
-                entity.HasOne<Pedido>()
-                      .WithMany(p => p.Ocorrencias)
-                      .HasForeignKey("PedidoId")
-                      .IsRequired();
-            });
-
-            // Configuração Pedido
             modelBuilder.Entity<Pedido>(entity =>
             {
                 entity.HasKey(p => p.IdPedido);
                 entity.ToTable("Pedidos");
             });
+
+            modelBuilder.Entity<Ocorrencia>(entity =>
+            {
+                entity.HasKey(o => o.IdOcorrencia);
+                entity.Property(o => o.TipoOcorrencia).HasConversion<int>();
+
+                // FK para Pedido
+                entity.HasOne(o => o.Pedido)
+                      .WithMany(p => p.Ocorrencias)
+                      .HasForeignKey(o => o.PedidoId)
+                      .IsRequired();
+            });
         }
+
     }
 }

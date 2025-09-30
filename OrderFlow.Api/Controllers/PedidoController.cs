@@ -45,7 +45,8 @@ public class PedidoController : ControllerBase
                 o.IdOcorrencia,
                 o.TipoOcorrencia,
                 o.IndFinalizadora,
-                o.HoraOcorrencia
+                o.HoraOcorrencia,
+                o.PedidoId
             )).ToList()
         )).ToList();
 
@@ -67,7 +68,8 @@ public class PedidoController : ControllerBase
                 o.IdOcorrencia,
                 o.TipoOcorrencia,
                 o.IndFinalizadora,
-                o.HoraOcorrencia
+                o.HoraOcorrencia,
+                o.PedidoId
             )).ToList()
         );
 
