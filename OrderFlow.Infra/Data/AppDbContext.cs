@@ -5,7 +5,7 @@ namespace OrderFlow.Infra.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options){ }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Pedido> Pedidos => Set<Pedido>();
         public DbSet<Ocorrencia> Ocorrencias => Set<Ocorrencia>();
@@ -14,24 +14,25 @@ namespace OrderFlow.Infra.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Ocorrencia>()
-                .Property(o => o.TipoOcorrencia)
-                .HasConversion<int>();
+            // Configuração Ocorrencia
+            modelBuilder.Entity<Ocorrencia>(entity =>
+            {
+                entity.HasKey(o => o.IdOcorrencia);
+                entity.Property(o => o.TipoOcorrencia).HasConversion<int>();
 
-            modelBuilder.Entity<Pedido>()
-                .HasMany(p => p.Ocorrencias)
-                .WithOne()
-                .HasForeignKey("PedidoId")
-                .IsRequired();
+                // Define FK para Pedido
+                entity.HasOne<Pedido>()
+                      .WithMany(p => p.Ocorrencias)
+                      .HasForeignKey("PedidoId")
+                      .IsRequired();
+            });
 
-
-            modelBuilder.Entity<Pedido>()
-                .HasMany(p => p.Ocorrencias)
-                .WithOne()
-                .HasForeignKey("PedidoId")
-                .IsRequired();
-
-            base.OnModelCreating(modelBuilder);
+            // Configuração Pedido
+            modelBuilder.Entity<Pedido>(entity =>
+            {
+                entity.HasKey(p => p.IdPedido);
+                entity.ToTable("Pedidos");
+            });
         }
     }
 }

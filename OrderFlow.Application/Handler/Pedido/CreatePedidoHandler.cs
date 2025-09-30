@@ -17,13 +17,8 @@ namespace OrderFlow.Application.Handler.Pedido
             // 1. Cria pedido no domínio
             var pedido = new OrderFlow.Domain.Entities.Pedido(dto.NumeroPedido);
 
-            // 2. Adiciona ocorrências via método de domínio (aplica regras)
-            foreach (var o in dto.Ocorrencias)
-            {
-                var ocorrencia = new OrderFlow.Domain.Entities.Ocorrencia(o.TipoOcorrencia);
-                pedido.AdicionarOcorrencia(ocorrencia);
-            }
-
+            if (await _pedidoRepository.GetPedidoByNumberAsync(pedido.NumeroPedido))
+                throw new InvalidOperationException("Já existe um pedido com este número.");
             // 3. Persiste pedido via repositório
             _pedidoRepository.AddAsync(pedido);
             await _pedidoRepository.SaveChangesAsync();
@@ -32,14 +27,14 @@ namespace OrderFlow.Application.Handler.Pedido
             var pedidoDto = new PedidoDto(
                 pedido.IdPedido,
                 pedido.NumeroPedido,
+                pedido.IndEntregue,
+                pedido.HoraPedido,
                 pedido.Ocorrencias.Select(o => new OcorrenciaDto(
                     o.IdOcorrencia,
                     o.TipoOcorrencia,
                     o.IndFinalizadora,
                     o.HoraOcorrencia
-                )).ToList(),
-                pedido.IndEntregue,
-                pedido.HoraPedido
+                )).ToList()
             );
 
             return pedidoDto;

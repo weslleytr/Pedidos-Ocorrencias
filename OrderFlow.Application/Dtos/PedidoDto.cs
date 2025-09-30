@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace OrderFlow.Application.Dtos
 {
     public record PedidoDto(
-    int IdPedido,
-    int NumeroPedido,
-    List<OcorrenciaDto> Ocorrencias,
-    bool IndEntregue,
-    DateTime HoraPedido
-);
+        int IdPedido,
+        int NumeroPedido,
+        bool IndEntregue,
+        DateTime HoraPedido,
+        List<OcorrenciaDto> Ocorrencias
+    );
 }

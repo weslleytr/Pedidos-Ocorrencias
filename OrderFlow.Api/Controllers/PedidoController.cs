@@ -31,7 +31,28 @@ public class PedidoController : ControllerBase
         }
     }
 
-    [HttpGet("getById/{id}")]
+    [HttpGet("getAllPedidos")]
+    public async Task<IActionResult> GetAll()
+    {
+        var pedidos = await _pedidoRepository.GetAllAsync();
+
+        var dtos = pedidos.Select(p => new PedidoDto(
+            p.IdPedido,
+            p.NumeroPedido,
+            p.IndEntregue,
+            p.HoraPedido,
+            p.Ocorrencias.Select(o => new OcorrenciaDto(
+                o.IdOcorrencia,
+                o.TipoOcorrencia,
+                o.IndFinalizadora,
+                o.HoraOcorrencia
+            )).ToList()
+        )).ToList();
+
+        return Ok(dtos);
+    }
+
+    [HttpGet("getPedidoById/{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var pedido = await _pedidoRepository.GetByIdAsync(id);
@@ -40,14 +61,14 @@ public class PedidoController : ControllerBase
         var dto = new PedidoDto(
             pedido.IdPedido,
             pedido.NumeroPedido,
+            pedido.IndEntregue,
+            pedido.HoraPedido,
             pedido.Ocorrencias.Select(o => new OcorrenciaDto(
                 o.IdOcorrencia,
                 o.TipoOcorrencia,
                 o.IndFinalizadora,
                 o.HoraOcorrencia
-            )).ToList(),
-            pedido.IndEntregue,
-            pedido.HoraPedido
+            )).ToList()
         );
 
         return Ok(dto);

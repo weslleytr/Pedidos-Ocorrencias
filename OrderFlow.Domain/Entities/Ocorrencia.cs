@@ -14,7 +14,7 @@ namespace OrderFlow.Domain.Entities
         public DateTime HoraOcorrencia { get; set; }
         public bool IndFinalizadora { get; set; }
 
-        private Ocorrencia() { }
+        public Ocorrencia() { }
 
         public Ocorrencia(ETipoOcorrencia tipoOcorrencia)
         {

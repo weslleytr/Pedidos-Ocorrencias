@@ -26,6 +26,18 @@ namespace OrderFlow.Infra.Repositories
                 .FirstOrDefaultAsync(p => p.IdPedido == id);
         }
 
+        public async Task<bool> GetPedidoByNumberAsync(int numeroPedido)
+        {
+            return await _context.Pedidos.AnyAsync(p => p.NumeroPedido == numeroPedido);
+        }
+
+        public async Task<List<Pedido>> GetAllAsync()
+        {
+            return await _context.Pedidos
+                .Include(p => p.Ocorrencias)
+                .ToListAsync();
+        }
+
         public async void AddAsync(Pedido pedido)
         {
             await _context.Pedidos.AddAsync(pedido);

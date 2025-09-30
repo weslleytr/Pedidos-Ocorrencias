@@ -16,7 +16,7 @@ namespace OrderFlow.Domain.Entities
 
         private readonly List<Ocorrencia> _ocorrencias = new List<Ocorrencia>();
         public IReadOnlyList<Ocorrencia> Ocorrencias => _ocorrencias;
-        private Pedido() { }
+        public Pedido() { }
 
         public Pedido(int idPedido, int numeroPedido, DateTime horaPedido)
         {
