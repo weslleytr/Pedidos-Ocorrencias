@@ -13,15 +13,17 @@ namespace OrderFlow.Api.Controllers
     [Authorize]
     public class OcorrenciaController : ControllerBase
     {
+        private readonly ILogger<OcorrenciaController> _logger;
         private readonly CreateOcorrenciaHandler _createOcorrenciaHandler;
         private readonly DeleteOcorrenciaHandler _deleteOcorrenciaHandler;
         private readonly IOcorrenciaRepository _ocorrenciaRepository;
 
-        public OcorrenciaController(CreateOcorrenciaHandler createOcorrenciaHandler, DeleteOcorrenciaHandler deleteOcorrenciaHandler ,IOcorrenciaRepository ocorrenciaRepository)
+        public OcorrenciaController(CreateOcorrenciaHandler createOcorrenciaHandler, DeleteOcorrenciaHandler deleteOcorrenciaHandler ,IOcorrenciaRepository ocorrenciaRepository, ILogger<OcorrenciaController> logger)
         {
             _createOcorrenciaHandler = createOcorrenciaHandler;
             _deleteOcorrenciaHandler = deleteOcorrenciaHandler;
             _ocorrenciaRepository = ocorrenciaRepository;
+            _logger = logger;
         }
 
         [HttpPost("create-ocorrencia")]
@@ -34,10 +36,12 @@ namespace OrderFlow.Api.Controllers
             try
             {
                 var ocorrencia = await _createOcorrenciaHandler.Handle(dto);
+                _logger.LogInformation("Ocorrência criada com sucesso para o pedido {Pedido}", dto.NumeroPedido);
                 return Ok("Ocorrencia Registrada");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao criar ocorrência para o pedido {Pedido}", dto.NumeroPedido);
                 return BadRequest(new { erro = ex.Message });
             }
         }
@@ -52,10 +56,12 @@ namespace OrderFlow.Api.Controllers
             try
             {
                 var ocorrencia = await _deleteOcorrenciaHandler.Handle(dto);
+                _logger.LogInformation("Ocorrência excluída com sucesso para o pedido {Pedido}", dto.NumeroPedido);
                 return Ok("Ocorrencia Removida");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Erro ao excluir ocorrência para o pedido {Pedido}", dto.NumeroPedido);
                 return BadRequest(new { erro = ex.Message });
             }
         }

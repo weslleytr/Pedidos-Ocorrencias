@@ -1,17 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OrderFlow.Application.Handler.Ocorrencia;
 using OrderFlow.Application.Handler.Pedido;
 using OrderFlow.Domain.Interfaces;
 using OrderFlow.Infra.Data;
 using OrderFlow.Infra.Repositories;
+using Serilog;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
@@ -19,6 +26,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         b => b.MigrationsAssembly("OrderFlow.Infra") 
     )
 );
+
+builder.Host.UseSerilog();
 
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<CreatePedidoHandler>();
