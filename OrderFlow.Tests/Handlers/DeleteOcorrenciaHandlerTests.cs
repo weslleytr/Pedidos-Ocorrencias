@@ -21,15 +21,22 @@ namespace OrderFlow.Tests.Handlers
             new DeleteOcorrenciaHandler(_pedidoRepoMock.Object, _ocorrenciaRepoMock.Object);
 
         [Fact]
-        public async Task Handle_PedidoNaoExiste_DeveLancarExcecao()
+        public async Task Handle_PedidoNaoExiste_DeveRetornarNotFound()
         {
+            // Arrange
             _pedidoRepoMock.Setup(r => r.GetPedidoByNumberAsync(It.IsAny<int>()))
                            .ReturnsAsync((Pedido?)null);
 
             var handler = CreateHandler();
-            var dto = new DeleteOcorrenciaDto(1, 1 );
+            var dto = new DeleteOcorrenciaDto(1, 1);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(dto));
+            // Act
+            var result = await handler.Handle(dto);
+
+            // Assert
+            Assert.False(result.isSuccess);
+            Assert.Equal("PedidoNaoEncontrado", result.Error.Code);
+            Assert.Equal("Pedido não encontrado.", result.Error.Message);
         }
 
         [Fact]
@@ -48,7 +55,7 @@ namespace OrderFlow.Tests.Handlers
             var result = await handler.Handle(dto);
 
             Assert.Empty(pedido.Ocorrencias);
-            Assert.True(result);
+            Assert.True(result.isSuccess);
         }
     }
 

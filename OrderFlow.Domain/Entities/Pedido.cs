@@ -25,6 +25,9 @@ namespace OrderFlow.Domain.Entities
 
         public void AdicionarOcorrencia(Ocorrencia novaOcorrencia)
         {
+            if (!System.Enum.IsDefined(typeof(ETipoOcorrencia), novaOcorrencia.TipoOcorrencia))
+                throw new InvalidOperationException("Tipo de ocorrência inválido.");
+
             if (IndEntregue)
                 throw new InvalidOperationException("Não é possível adicionar ocorrências a um pedido já finalizado.");
 

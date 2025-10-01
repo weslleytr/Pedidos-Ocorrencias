@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OrderFlow.Api.Core
+namespace OrderFlow.Application.Core
 {
     public record Error
     {
         public static readonly Error None = new(string.Empty, string.Empty, ErrorType.Failure);
 
-        private Error(string code, string message, ErrorType type)
+        public Error(string code, string message, ErrorType type)
         {
             Code = code;
             Message = message;

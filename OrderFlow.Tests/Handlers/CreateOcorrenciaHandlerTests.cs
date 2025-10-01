@@ -14,15 +14,23 @@ public class CreateOcorrenciaHandlerTests
         new CreateOcorrenciaHandler(_pedidoRepoMock.Object, _ocorrenciaRepoMock.Object);
 
     [Fact]
-    public async Task Handle_PedidoNaoExiste_DeveLancarExcecao()
+    public async Task Handle_PedidoNaoExiste_DeveRetornarNotFound()
     {
+        // Arrange
         _pedidoRepoMock.Setup(r => r.GetPedidoByNumberAsync(It.IsAny<int>()))
                        .ReturnsAsync((Pedido?)null);
 
         var handler = CreateHandler();
         var dto = new CreateOcorrenciaDto(1, ETipoOcorrencia.EmRotaDeEntrega);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(dto));
+        // Act
+        var result = await handler.Handle(dto);
+
+        // Assert
+        Assert.False(result.isSuccess);
+        Assert.NotNull(result.Error);
+        Assert.Equal("PedidoNaoEncontrado", result.Error.Code);
+        Assert.Equal("Pedido não encontrado.", result.Error.Message);
     }
 
     [Fact]
@@ -38,6 +46,6 @@ public class CreateOcorrenciaHandlerTests
         var result = await handler.Handle(dto);
 
         Assert.Single(pedido.Ocorrencias);
-        Assert.Equal(ETipoOcorrencia.EmRotaDeEntrega, result.TipoOcorrencia);
+        Assert.Equal(ETipoOcorrencia.EmRotaDeEntrega, result?.Value?.TipoOcorrencia);
     }
 }

@@ -1,4 +1,6 @@
-﻿using OrderFlow.Application.Dtos;
+﻿using OrderFlow.Application.Core;
+using OrderFlow.Application.Dtos;
+using OrderFlow.Domain.Entities;
 using OrderFlow.Domain.Interfaces;
 
 namespace OrderFlow.Application.Handler.Pedido
@@ -12,33 +14,41 @@ namespace OrderFlow.Application.Handler.Pedido
             _pedidoRepository = pedidoRepository;
         }
 
-        public async Task<PedidoDto> Handle(CreatePedidoDto dto)
+        public async Task<Result<PedidoDto>> Handle(CreatePedidoDto dto)
         {
-            // 1. Cria pedido no domínio
-            var pedido = new OrderFlow.Domain.Entities.Pedido(dto.NumeroPedido);
+            try
+            {
+                // 1. Cria pedido no domínio
+                var pedido = new OrderFlow.Domain.Entities.Pedido(dto.NumeroPedido);
 
-            if (await _pedidoRepository.Exists(pedido.NumeroPedido))
-                throw new InvalidOperationException("Já existe um pedido com este número.");
-            // 3. Persiste pedido via repositório
-            await _pedidoRepository.AddAsync(pedido);
-            await _pedidoRepository.SaveChangesAsync();
+                if (await _pedidoRepository.Exists(pedido.NumeroPedido))
+                    return Result<PedidoDto>.Failure(Error.NotFound("PedidoJaExiste", "Número de Pedido já Existe."));
+                // 3. Persiste pedido via repositório
+                await _pedidoRepository.AddAsync(pedido);
+                await _pedidoRepository.SaveChangesAsync();
 
-            // 4. Mapeia para DTO de resposta
-            var pedidoDto = new PedidoDto(
-                pedido.IdPedido,
-                pedido.NumeroPedido,
-                pedido.IndEntregue,
-                pedido.HoraPedido,
-                pedido.Ocorrencias.Select(o => new OcorrenciaDto(
-                    o.IdOcorrencia,
-                    o.TipoOcorrencia,
-                    o.IndFinalizadora,
-                    o.HoraOcorrencia,
-                    o.PedidoId
-                )).ToList()
-            );
-
-            return pedidoDto;
+                return Result<PedidoDto>.Success(new PedidoDto(
+                    pedido.IdPedido,
+                    pedido.NumeroPedido,
+                    pedido.IndEntregue,
+                    pedido.HoraPedido,
+                    pedido.Ocorrencias.Select(o => new OcorrenciaDto(
+                        o.IdOcorrencia,
+                        o.TipoOcorrencia,
+                        o.IndFinalizadora,
+                        o.HoraOcorrencia,
+                        o.PedidoId
+                    )).ToList()
+                ));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Result<PedidoDto>.Failure(Error.Validation("RegraNegocio", ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return Result<PedidoDto>.Failure(Error.Failure("ErroInterno", ex.Message));
+            }
         }
     }
 }

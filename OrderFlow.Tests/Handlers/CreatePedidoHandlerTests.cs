@@ -18,14 +18,18 @@ namespace OrderFlow.Tests.Handlers
         private CreatePedidoHandler CreateHandler() => new CreatePedidoHandler(_pedidoRepoMock.Object);
 
         [Fact]
-        public async Task Handle_PedidoExiste_DeveLancarExcecao()
+        public async Task Handle_PedidoExiste_DeveRetornarErro()
         {
             _pedidoRepoMock.Setup(r => r.Exists(It.IsAny<int>())).ReturnsAsync(true);
 
             var handler = CreateHandler();
             var dto = new CreatePedidoDto(1);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(dto));
+            var result = await handler.Handle(dto);
+
+            Assert.False(result.isSuccess);
+            Assert.Equal("PedidoJaExiste", result.Error.Code);
+            Assert.Equal("Número de Pedido já Existe.", result.Error.Message);
         }
 
         [Fact]
@@ -40,7 +44,7 @@ namespace OrderFlow.Tests.Handlers
 
             var result = await handler.Handle(dto);
 
-            Assert.Equal(1, result.NumeroPedido);
+            Assert.Equal(1, result?.Value?.NumeroPedido);
         }
     }
 

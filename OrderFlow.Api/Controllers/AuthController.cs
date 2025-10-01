@@ -43,7 +43,6 @@ public class AuthController : ControllerBase
             signingCredentials: creds
         );
 
-        // 5. Retorna o token JWT
         return Ok(new
         {
             token = new JwtSecurityTokenHandler().WriteToken(token),
