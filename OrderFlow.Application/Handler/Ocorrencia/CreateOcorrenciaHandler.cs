@@ -38,7 +38,7 @@ namespace OrderFlow.Application.Handler.Ocorrencia
             await _ocorrenciaRepository.AddAsync(ocorrencia);
 
             // 5. Atualiza o pedido no banco (IndEntregue pode ter mudado)
-            _pedidoRepository.UpdateAsync(pedido);
+            await _pedidoRepository.UpdateAsync(pedido);
 
             // 6. Salva tudo no banco
             await _ocorrenciaRepository.SaveChangesAsync();

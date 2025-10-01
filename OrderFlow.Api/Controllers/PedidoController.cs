@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OrderFlow.Api.Controllers;
 using OrderFlow.Application.Dtos;
 using OrderFlow.Application.Handler;
 using OrderFlow.Application.Handler.Pedido;
@@ -11,13 +12,15 @@ using Swashbuckle.AspNetCore.Annotations;
 [Authorize]
 public class PedidoController : ControllerBase
 {
+    private readonly ILogger<OcorrenciaController> _logger;
     private readonly CreatePedidoHandler _createPedidoHandler;
     private readonly GetPedidoHandler _getPedidoHandler;
 
-    public PedidoController(CreatePedidoHandler createPedidoHandler, GetPedidoHandler getPedidoHandler)
+    public PedidoController(CreatePedidoHandler createPedidoHandler, GetPedidoHandler getPedidoHandler, ILogger<OcorrenciaController> logger)
     {
         _createPedidoHandler = createPedidoHandler;
         _getPedidoHandler = getPedidoHandler;
+        _logger = logger;
     }
 
     [HttpPost("create-pedido")]
@@ -27,6 +30,7 @@ public class PedidoController : ControllerBase
         try
         {
             var pedido = await _createPedidoHandler.Handle(dto);
+            _logger.LogInformation("Pedido criado com sucesso: {NumeroPedido}", dto.NumeroPedido);
             return CreatedAtAction(
                 nameof(GetByNumber),
                 new { numeroPedido = pedido.NumeroPedido },
@@ -35,6 +39,7 @@ public class PedidoController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Erro ao criar pedido: {NumeroPedido}", dto.NumeroPedido);
             return BadRequest(new { erro = ex.Message });
         }
     }
@@ -45,7 +50,7 @@ public class PedidoController : ControllerBase
     {
         var pedidos = await _getPedidoHandler.HandleAll();
         if (pedidos == null) return NotFound();
-
+        _logger.LogInformation("Lista de pedidos retornada com sucesso, total: {Total}", pedidos.Count);
         return Ok(pedidos);
     }
 
@@ -55,7 +60,7 @@ public class PedidoController : ControllerBase
     {
         var pedido = await _getPedidoHandler.HandleByNumber(numeroPedido);
         if (pedido == null) return NotFound();
-
+        _logger.LogInformation("Pedido retornado com sucesso: {NumeroPedido}", numeroPedido);
         return Ok(pedido);
     }
 }

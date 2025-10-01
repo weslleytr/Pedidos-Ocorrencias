@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Annotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,6 +17,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("generate-token")]
+    [SwaggerOperation(
+        Summary = "Cria um novo token",
+        Description = "Cria um token para autenticar as requisições."
+    )]
     public IActionResult GenerateToken()
     {
         var key = new SymmetricSecurityKey(
