@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: orderflow-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: Pedidos
+    ports:
+      - "5433:5432" # porta para acessar de fora
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  orderflow-api:
+    build: .
+    container_name: orderflow-api
+    environment:
+      # Connection string para se conectar ao Postgres interno
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=Pedidos;Username=admin;Password=admin
+    depends_on:
+      - postgres
+    ports:
+      - "7267:7267"
+    command: >
+      sh -c "until pg_isready -h postgres -p 5432 -U admin; do sleep 2; done &&
+             dotnet ef database update -p OrderFlow.Infra -s OrderFlow.Api &&
+             dotnet OrderFlow.Api.dll"
+
+volumes:
+  pgdata:
