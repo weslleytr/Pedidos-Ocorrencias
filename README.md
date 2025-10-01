@@ -55,7 +55,7 @@ dotnet ef database update --project ../OrderFlow.Infra
 ```
 API: http://localhost:7267
 
-Swagger: http://localhost:7267/swagger
+Swagger: http://localhost:7267/index.html
 
 Postgres: localhost,5432
 
