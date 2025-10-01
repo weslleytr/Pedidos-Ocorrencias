@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using OrderFlow.Application.Handler;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OrderFlow.Application.Dtos;
-using OrderFlow.Domain.Interfaces;
+using OrderFlow.Application.Handler;
 using OrderFlow.Application.Handler.Pedido;
+using OrderFlow.Domain.Interfaces;
+using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
 [Route("api")]
+[Authorize]
 public class PedidoController : ControllerBase
 {
     private readonly CreatePedidoHandler _createPedidoHandler;
@@ -18,6 +21,7 @@ public class PedidoController : ControllerBase
     }
 
     [HttpPost("create-pedido")]
+    [SwaggerOperation(Summary = "Cria um novo pedido", Description = "Cria um pedido com os dados fornecidos e retorna o pedido criado.")]
     public async Task<IActionResult> Criar([FromBody] CreatePedidoDto dto)
     {
         try
@@ -36,6 +40,7 @@ public class PedidoController : ControllerBase
     }
 
     [HttpGet("getAll")]
+    [SwaggerOperation(Summary = "Lista todos os pedidos", Description = "Retorna todos os pedidos cadastrados.")]
     public async Task<IActionResult> GetAll()
     {
         var pedidos = await _getPedidoHandler.HandleAll();
@@ -45,6 +50,7 @@ public class PedidoController : ControllerBase
     }
 
     [HttpGet("getByNumber{numeroPedido}")]
+    [SwaggerOperation(Summary = "Busca pedido por número", Description = "Retorna um pedido específico pelo seu número.")]
     public async Task<IActionResult> GetByNumber(int numeroPedido)
     {
         var pedido = await _getPedidoHandler.HandleByNumber(numeroPedido);

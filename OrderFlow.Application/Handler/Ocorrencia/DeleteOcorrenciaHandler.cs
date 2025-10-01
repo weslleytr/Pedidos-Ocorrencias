@@ -22,10 +22,10 @@ namespace OrderFlow.Application.Handler.Ocorrencia
             _ocorrenciaRepository = ocorrenciaRepository;
         }
 
-        public async Task<bool> Handle(int numeroPedido, int idOcorrencia)
+        public async Task<bool> Handle(DeleteOcorrenciaDto dto)
         {
             // 1. Carrega o pedido com as ocorrências
-            var pedido = await _pedidoRepository.GetPedidoByNumberAsync(numeroPedido);
+            var pedido = await _pedidoRepository.GetPedidoByNumberAsync(dto.NumeroPedido);
             if (pedido == null)
                 throw new InvalidOperationException("Pedido não encontrado.");
 
@@ -34,7 +34,7 @@ namespace OrderFlow.Application.Handler.Ocorrencia
                 throw new InvalidOperationException("Não é possível excluir ocorrências de um pedido finalizado.");
 
             // 3. Localiza a ocorrência a ser excluída
-            var ocorrencia = pedido.Ocorrencias.FirstOrDefault(o => o.IdOcorrencia == idOcorrencia);
+            var ocorrencia = pedido.Ocorrencias.FirstOrDefault(o => o.IdOcorrencia == dto.IdOcorrencia);
             if (ocorrencia == null)
                 throw new InvalidOperationException("Ocorrência não encontrada.");
 
