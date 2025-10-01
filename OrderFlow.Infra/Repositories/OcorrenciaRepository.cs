@@ -30,12 +30,12 @@ namespace OrderFlow.Infra.Repositories
                                  .ToListAsync();
         }
 
-        public async void AddAsync(Ocorrencia ocorrencia)
+        public async Task AddAsync(Ocorrencia ocorrencia)
         {
            await _context.Ocorrencias.AddAsync(ocorrencia);
         }
 
-        public async void RemoveAsync(Ocorrencia ocorrencia)
+        public async Task RemoveAsync(Ocorrencia ocorrencia)
         {
             await _context.Ocorrencias.Where(x => x.IdOcorrencia == ocorrencia.IdOcorrencia).ExecuteDeleteAsync();
         }

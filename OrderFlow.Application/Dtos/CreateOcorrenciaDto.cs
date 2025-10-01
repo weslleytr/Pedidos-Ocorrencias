@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace OrderFlow.Application.Dtos
 {
     public record CreateOcorrenciaDto(
+        int NumeroPedido,
         ETipoOcorrencia TipoOcorrencia
     );
 }

@@ -19,14 +19,14 @@ namespace OrderFlow.Infra.Repositories
             _context = context;
         }
 
-        public async Task<Pedido?> GetByIdAsync(int id)
+        public async Task<Pedido?> GetPedidoByNumberAsync(int id)
         {
             return await _context.Pedidos
                 .Include(p => p.Ocorrencias)
-                .FirstOrDefaultAsync(p => p.IdPedido == id);
+                .FirstOrDefaultAsync(p => p.NumeroPedido == id);
         }
 
-        public async Task<bool> GetPedidoByNumberAsync(int numeroPedido)
+        public async Task<bool> Exists(int numeroPedido)
         {
             return await _context.Pedidos.AnyAsync(p => p.NumeroPedido == numeroPedido);
         }
@@ -38,9 +38,14 @@ namespace OrderFlow.Infra.Repositories
                 .ToListAsync();
         }
 
-        public async void AddAsync(Pedido pedido)
+        public async Task AddAsync(Pedido pedido)
         {
             await _context.Pedidos.AddAsync(pedido);
+        }
+
+        public async Task UpdateAsync(Pedido pedido)
+        {
+            _context.Pedidos.UpdateRange(pedido);
         }
 
         public async Task SaveChangesAsync()

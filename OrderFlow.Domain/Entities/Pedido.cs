@@ -28,7 +28,6 @@ namespace OrderFlow.Domain.Entities
             if (IndEntregue)
                 throw new InvalidOperationException("Não é possível adicionar ocorrências a um pedido já finalizado.");
 
-            // Valida intervalo de 10 minutos
             var ultimaDoMesmoTipo = Ocorrencias
                 .Where(o => o.TipoOcorrencia == novaOcorrencia.TipoOcorrencia)
                 .OrderByDescending(o => o.HoraOcorrencia)
@@ -40,19 +39,19 @@ namespace OrderFlow.Domain.Entities
                 throw new InvalidOperationException("Ocorrências do mesmo tipo só podem ser cadastradas com intervalo mínimo de 10 minutos.");
             }
 
-            // Se for a segunda ocorrência → finalizadora
-            if (Ocorrencias.Count == 1)
+            if (Ocorrencias.Count == 1 || novaOcorrencia.TipoOcorrencia == ETipoOcorrencia.EntregueComSucesso)
             {
                 novaOcorrencia.IndFinalizadora = true;
-
-                if (novaOcorrencia.TipoOcorrencia == ETipoOcorrencia.EntregueComSucesso)
-                    IndEntregue = true;
-                else
-                    IndEntregue = false;
             }
+
+            if (novaOcorrencia.TipoOcorrencia == ETipoOcorrencia.EntregueComSucesso)
+                IndEntregue = true;
+            else if (Ocorrencias.Count >= 1)
+                IndEntregue = false;
 
             Ocorrencias.Add(novaOcorrencia);
         }
+
 
         public void ExcluirOcorrencia(int ocorrenciaId)
         {

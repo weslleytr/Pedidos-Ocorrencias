@@ -9,9 +9,10 @@ namespace OrderFlow.Domain.Interfaces
 {
     public interface IPedidoRepository
     {
-        Task<Pedido?> GetByIdAsync(int id);
-        Task<bool> GetPedidoByNumberAsync(int id);
-        void AddAsync(Pedido pedido);
+        Task<Pedido?> GetPedidoByNumberAsync(int id);
+        Task<bool> Exists(int id);
+        Task AddAsync(Pedido pedido);
+        Task UpdateAsync(Pedido pedido);
         Task<List<Pedido>> GetAllAsync();
         Task SaveChangesAsync();
     }

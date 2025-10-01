@@ -9,12 +9,12 @@ using OrderFlow.Application.Handler.Pedido;
 public class PedidoController : ControllerBase
 {
     private readonly CreatePedidoHandler _createPedidoHandler;
-    private readonly IPedidoRepository _pedidoRepository;
+    private readonly GetPedidoHandler _getPedidoHandler;
 
-    public PedidoController(CreatePedidoHandler createPedidoHandler, IPedidoRepository pedidoRepository)
+    public PedidoController(CreatePedidoHandler createPedidoHandler, GetPedidoHandler getPedidoHandler)
     {
         _createPedidoHandler = createPedidoHandler;
-        _pedidoRepository = pedidoRepository;
+        _getPedidoHandler = getPedidoHandler;
     }
 
     [HttpPost("create-pedido")]
@@ -23,7 +23,11 @@ public class PedidoController : ControllerBase
         try
         {
             var pedido = await _createPedidoHandler.Handle(dto);
-            return CreatedAtAction(nameof(GetById), new { id = pedido.IdPedido }, pedido);
+            return CreatedAtAction(
+                nameof(GetByNumber),
+                new { numeroPedido = pedido.NumeroPedido },
+                pedido
+            );
         }
         catch (Exception ex)
         {
@@ -31,48 +35,21 @@ public class PedidoController : ControllerBase
         }
     }
 
-    [HttpGet("getAllPedidos")]
+    [HttpGet("getAll")]
     public async Task<IActionResult> GetAll()
     {
-        var pedidos = await _pedidoRepository.GetAllAsync();
+        var pedidos = await _getPedidoHandler.HandleAll();
+        if (pedidos == null) return NotFound();
 
-        var dtos = pedidos.Select(p => new PedidoDto(
-            p.IdPedido,
-            p.NumeroPedido,
-            p.IndEntregue,
-            p.HoraPedido,
-            p.Ocorrencias.Select(o => new OcorrenciaDto(
-                o.IdOcorrencia,
-                o.TipoOcorrencia,
-                o.IndFinalizadora,
-                o.HoraOcorrencia,
-                o.PedidoId
-            )).ToList()
-        )).ToList();
-
-        return Ok(dtos);
+        return Ok(pedidos);
     }
 
-    [HttpGet("getPedidoById/{id}")]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("getByNumber{numeroPedido}")]
+    public async Task<IActionResult> GetByNumber(int numeroPedido)
     {
-        var pedido = await _pedidoRepository.GetByIdAsync(id);
+        var pedido = await _getPedidoHandler.HandleByNumber(numeroPedido);
         if (pedido == null) return NotFound();
 
-        var dto = new PedidoDto(
-            pedido.IdPedido,
-            pedido.NumeroPedido,
-            pedido.IndEntregue,
-            pedido.HoraPedido,
-            pedido.Ocorrencias.Select(o => new OcorrenciaDto(
-                o.IdOcorrencia,
-                o.TipoOcorrencia,
-                o.IndFinalizadora,
-                o.HoraOcorrencia,
-                o.PedidoId
-            )).ToList()
-        );
-
-        return Ok(dto);
+        return Ok(pedido);
     }
 }

@@ -17,10 +17,10 @@ namespace OrderFlow.Application.Handler.Pedido
             // 1. Cria pedido no domínio
             var pedido = new OrderFlow.Domain.Entities.Pedido(dto.NumeroPedido);
 
-            if (await _pedidoRepository.GetPedidoByNumberAsync(pedido.NumeroPedido))
+            if (await _pedidoRepository.Exists(pedido.NumeroPedido))
                 throw new InvalidOperationException("Já existe um pedido com este número.");
             // 3. Persiste pedido via repositório
-            _pedidoRepository.AddAsync(pedido);
+            await _pedidoRepository.AddAsync(pedido);
             await _pedidoRepository.SaveChangesAsync();
 
             // 4. Mapeia para DTO de resposta

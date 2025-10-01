@@ -10,8 +10,8 @@ namespace OrderFlow.Domain.Interfaces
     public interface IOcorrenciaRepository
     {
         Task<Ocorrencia> GetByIdAsync(int id);
-        void AddAsync(Ocorrencia ocorrencia);
-        void RemoveAsync(Ocorrencia ocorrencia);
+        Task AddAsync(Ocorrencia ocorrencia);
+        Task RemoveAsync(Ocorrencia ocorrencia);
         Task SaveChangesAsync();
         Task<List<Ocorrencia>> GetByPedidoIdAsync(int pedidoId);
     }

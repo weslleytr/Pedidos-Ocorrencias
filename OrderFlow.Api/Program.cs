@@ -17,8 +17,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<CreatePedidoHandler>();
+builder.Services.AddScoped<GetPedidoHandler>();
 builder.Services.AddScoped<IOcorrenciaRepository, OcorrenciaRepository>();
 builder.Services.AddScoped<CreateOcorrenciaHandler>();
+builder.Services.AddScoped<DeleteOcorrenciaHandler>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Handler\Ocorrencia\GetOcorrenciasHandler.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OrderFlow.Domain\OrderFlow.Domain.csproj" />
   </ItemGroup>
 

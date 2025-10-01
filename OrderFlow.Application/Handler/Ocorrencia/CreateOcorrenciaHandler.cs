@@ -20,25 +20,31 @@ namespace OrderFlow.Application.Handler.Ocorrencia
 
         public async Task<OcorrenciaDto> Handle(CreateOcorrenciaDto dto)
         {
-            // 1. Carrega o pedido relacionado
-            var pedido = await _pedidoRepository.GetByIdAsync(dto.);
+            // 1. Carrega o pedido relacionado do banco
+            var pedido = await _pedidoRepository.GetPedidoByNumberAsync(dto.NumeroPedido);
             if (pedido == null)
                 throw new InvalidOperationException("Pedido não encontrado.");
 
             // 2. Cria a nova ocorrência
             var ocorrencia = new OrderFlow.Domain.Entities.Ocorrencia(dto.TipoOcorrencia)
             {
-                PedidoId = dto.PedidoId
+                PedidoId = pedido.IdPedido
             };
 
-            // 3. Usa a regra de domínio do Pedido
+            // 3. Usa a regra de domínio do Pedido existente
             pedido.AdicionarOcorrencia(ocorrencia);
 
-            // 4. Persiste no banco
-            _ocorrenciaRepository.AddAsync(ocorrencia);
-            await _ocorrenciaRepository.SaveChangesAsync();
+            // 4. Persiste a ocorrência
+            await _ocorrenciaRepository.AddAsync(ocorrencia);
 
-            // 5. Retorna DTO
+            // 5. Atualiza o pedido no banco (IndEntregue pode ter mudado)
+            _pedidoRepository.UpdateAsync(pedido);
+
+            // 6. Salva tudo no banco
+            await _ocorrenciaRepository.SaveChangesAsync();
+            await _pedidoRepository.SaveChangesAsync();
+
+            // 7. Retorna DTO
             return new OcorrenciaDto(
                 ocorrencia.IdOcorrencia,
                 ocorrencia.TipoOcorrencia,
@@ -47,5 +53,6 @@ namespace OrderFlow.Application.Handler.Ocorrencia
                 ocorrencia.PedidoId
             );
         }
+
     }
 }
