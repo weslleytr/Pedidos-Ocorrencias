@@ -14,17 +14,15 @@ namespace OrderFlow.Api.Controllers
     [Authorize]
     public class OcorrenciaController : ControllerBase
     {
-        private readonly ILogger<OcorrenciaController> _logger;
         private readonly CreateOcorrenciaHandler _createOcorrenciaHandler;
         private readonly DeleteOcorrenciaHandler _deleteOcorrenciaHandler;
         private readonly IOcorrenciaRepository _ocorrenciaRepository;
 
-        public OcorrenciaController(CreateOcorrenciaHandler createOcorrenciaHandler, DeleteOcorrenciaHandler deleteOcorrenciaHandler ,IOcorrenciaRepository ocorrenciaRepository, ILogger<OcorrenciaController> logger)
+        public OcorrenciaController(CreateOcorrenciaHandler createOcorrenciaHandler, DeleteOcorrenciaHandler deleteOcorrenciaHandler ,IOcorrenciaRepository ocorrenciaRepository)
         {
             _createOcorrenciaHandler = createOcorrenciaHandler;
             _deleteOcorrenciaHandler = deleteOcorrenciaHandler;
             _ocorrenciaRepository = ocorrenciaRepository;
-            _logger = logger;
         }
 
         [HttpPost("create-ocorrencia")]

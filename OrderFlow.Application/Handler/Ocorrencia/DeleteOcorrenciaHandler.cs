@@ -1,7 +1,8 @@
-﻿using OrderFlow.Application.Dtos;
+﻿using Microsoft.Extensions.Logging;
+using OrderFlow.Application.Core;
+using OrderFlow.Application.Dtos;
 using OrderFlow.Domain.Enum;
 using OrderFlow.Domain.Interfaces;
-using OrderFlow.Application.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,42 +15,58 @@ namespace OrderFlow.Application.Handler.Ocorrencia
     {
         private readonly IPedidoRepository _pedidoRepository;
         private readonly IOcorrenciaRepository _ocorrenciaRepository;
+        private readonly ILogger<DeleteOcorrenciaHandler> _logger;
 
-        public DeleteOcorrenciaHandler(
-            IPedidoRepository pedidoRepository,
-            IOcorrenciaRepository ocorrenciaRepository)
+        public DeleteOcorrenciaHandler(IPedidoRepository pedidoRepository,IOcorrenciaRepository ocorrenciaRepository, ILogger<DeleteOcorrenciaHandler> logger)
         {
             _pedidoRepository = pedidoRepository;
             _ocorrenciaRepository = ocorrenciaRepository;
+            _logger = logger;
         }
 
         public async Task<Result<DeleteOcorrenciaDto>> Handle(DeleteOcorrenciaDto dto)
         {
             try
             {
-                // 1. Carrega o pedido com as ocorrências
+                // --------------------------------
+                // Valida o pedido existente
+                // --------------------------------
                 var pedido = await _pedidoRepository.GetPedidoByNumberAsync(dto.NumeroPedido);
                 if (pedido == null)
                     return Result<DeleteOcorrenciaDto>.Failure(Error.NotFound("PedidoNaoEncontrado", "Pedido não encontrado."));
 
-                // 2. Verifica se o pedido está finalizado
+                // --------------------------------
+                // Verifica se o pedido já foi finalizado
+                // --------------------------------
                 if (pedido.IndEntregue)
                     return Result<DeleteOcorrenciaDto>.Failure(Error.Conflict("PedidoFinalizado", "Pedido já finalizado."));
 
-                // 3. Localiza a ocorrência a ser excluída
+                // --------------------------------
+                // Busca a ocorrência a ser removida
+                // --------------------------------
                 var ocorrencia = pedido.Ocorrencias.FirstOrDefault(o => o.IdOcorrencia == dto.IdOcorrencia);
                 if (ocorrencia == null)
                     return Result<DeleteOcorrenciaDto>.Failure(Error.NotFound("OcorrenciaNaoEncontrada", "Ocorrência não encontrada."));
 
-                // 4. Remove a ocorrência da lista do pedido
+                // --------------------------------
+                // Remove a ocorrência da lista do pedido
+                // --------------------------------
                 pedido.Ocorrencias.Remove(ocorrencia);
 
-                // 5. Atualiza o status do pedido, caso necessário
+                // --------------------------------
+                // Reaplica as regras de negócio ao pedido
+                // --------------------------------
                 pedido.IndEntregue = pedido.Ocorrencias.Any(o => o.TipoOcorrencia == ETipoOcorrencia.EntregueComSucesso);
 
-                // 6. Remove a ocorrência do banco
+                // --------------------------------
+                // Remove a ocorrência do repositório
+                // --------------------------------
                 await _ocorrenciaRepository.RemoveAsync(ocorrencia);
 
+                // --------------------------------
+                // Retorna o DTO da ocorrência apagada
+                // --------------------------------
+                _logger.LogInformation("Ocorrência {IdOcorrencia} removida do pedido {NumeroPedido}", dto.IdOcorrencia, dto.NumeroPedido);
                 return Result<DeleteOcorrenciaDto>.Success(new DeleteOcorrenciaDto(
                         dto.NumeroPedido,
                         dto.IdOcorrencia
@@ -57,12 +74,12 @@ namespace OrderFlow.Application.Handler.Ocorrencia
             }
             catch (InvalidOperationException ex)
             {
-                // Captura erros de regra de negócio do domínio
+                _logger.LogWarning(ex, "Regra de negócio violada ao excluir ocorrência {IdOcorrencia} do pedido {NumeroPedido}", dto.IdOcorrencia, dto.NumeroPedido);
                 return Result<DeleteOcorrenciaDto>.Failure(Error.Validation("RegraNegocio", ex.Message));
             }
             catch (Exception ex)
             {
-                // Captura qualquer outro erro inesperado
+                _logger.LogError(ex, "Erro ao excluir ocorrência {IdOcorrencia} do pedido {NumeroPedido}", dto.IdOcorrencia, dto.NumeroPedido);
                 return Result<DeleteOcorrenciaDto>.Failure(Error.Failure("ErroInterno", ex.Message));
             }
         }

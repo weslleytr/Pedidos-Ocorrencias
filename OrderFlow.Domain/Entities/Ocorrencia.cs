@@ -24,6 +24,9 @@ namespace OrderFlow.Domain.Entities
 
         public Ocorrencia(int idOcorrencia, ETipoOcorrencia tipoOcorrencia, DateTime horaOcorrencia)
         {
+            // --------------------------------
+            // Não permite registrar ocorrências com hora inválida
+            // --------------------------------
             if (horaOcorrencia > DateTime.Now)
                 throw new ArgumentException("A hora da ocorrência não pode ser no futuro.");
 

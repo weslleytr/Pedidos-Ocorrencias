@@ -14,21 +14,33 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --------------------------------
+// Configuração do Serilog para logs
+// --------------------------------
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+// --------------------------------
+// Configuração do DbContext com PostgreSQL
+// --------------------------------
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("OrderFlow.Infra") 
+        b => b.MigrationsAssembly("OrderFlow.Infra") // Define a assembly de migrations
     )
 );
 
+// --------------------------------
+// Habilita Serilog como provedor de logs da aplicação
+// --------------------------------
 builder.Host.UseSerilog();
 
+// --------------------------------
+// Registro de Repositórios e Handlers via DI
+// --------------------------------
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<CreatePedidoHandler>();
 builder.Services.AddScoped<GetPedidoHandler>();
@@ -36,9 +48,9 @@ builder.Services.AddScoped<IOcorrenciaRepository, OcorrenciaRepository>();
 builder.Services.AddScoped<CreateOcorrenciaHandler>();
 builder.Services.AddScoped<DeleteOcorrenciaHandler>();
 
-// ----------------------------
-// JWT Configuration
-// ----------------------------
+// --------------------------------
+// Configuração do JWT Authentication
+// --------------------------------
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Authentication:KeyJwt"]);
 
 builder.Services.AddAuthentication(options =>
@@ -59,18 +71,31 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// --------------------------------
+// Configuração do MVC e Swagger
+// --------------------------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    // --------------------------------
+    // Informações da API
+    // --------------------------------
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "OrderFlow API",
         Version = "v1",
         Description = "API para gerenciamento de pedidos e ocorrências"
     });
+
+    // --------------------------------
+    // Habilita anotações via Swagger
+    // --------------------------------
     c.EnableAnnotations();
-    
+
+    // --------------------------------
+    // Configuração do esquema de segurança JWT
+    // --------------------------------
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Insira o token JWT desta forma: Bearer {seu token}",
@@ -81,9 +106,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 var app = builder.Build();
 
+// --------------------------------
+// Configuração do Swagger no ambiente de desenvolvimento
+// --------------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(c =>
@@ -97,10 +124,19 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// --------------------------------
+// Middleware de HTTPS, Autenticação e Autorização
+// --------------------------------
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// --------------------------------
+// Mapeamento dos controllers
+// --------------------------------
 app.MapControllers();
 
+// --------------------------------
+// Inicializa a aplicação
+// --------------------------------
 app.Run();
