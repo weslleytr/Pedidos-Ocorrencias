@@ -31,11 +31,9 @@ OrderFlow é uma API desenvolvida em ASP.NET Core (.NET 8) para gerenciamento de
 
 Pré-requisitos:
 
-Docker + Docker Compose
-
-Porta 7267 livre para a API + Swagger
-
-Porta 5433 livre para o Postgres
+- Docker + Docker Compose
+- Porta 7267 livre para a API + Swagger
+- Porta 5433 livre para o PostgreSQL
 
 Passo a passo
 ```
@@ -57,7 +55,7 @@ API: http://localhost:7267
 
 Swagger: http://localhost:7267/index.html
 
-Postgres: localhost,5432
+PostgreSQL: localhost,5432
 
 ## Testes
 
